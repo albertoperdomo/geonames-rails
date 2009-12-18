@@ -12,7 +12,7 @@ module GeonamesRails
       @puller.pull if @puller # pull geonames files down
       
       load_countries
-      
+      load_divisions
       load_cities
       
       @puller.cleanup if @puller # cleanup the geonames files
@@ -33,6 +33,22 @@ module GeonamesRails
           log_message result
         end
       end
+    end
+
+    def load_divisions
+      log_message "opening allCountries file... processign will take some time"
+      divisions = []
+      File.open(File.join(RAILS_ROOT, 'tmp', 'allCountries.txt'), 'r') do |f|
+        f.each_line do |line|
+          parts = line.split("\t")
+          next if parts.size != 19 # bad records
+          next unless parts[6] == 'A' and parts[7] =~ /^ADM[1234]$/ # only admins
+          divisions << Mappings::Division.new(line)
+          #break if divisions.size > 500
+        end
+      end
+      result = @writer.write_divisions(divisions)
+      log_message result
     end
     
     def load_cities

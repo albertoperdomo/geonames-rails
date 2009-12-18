@@ -1,6 +1,6 @@
 module GeonamesRails
   module Mappings
-    class City < Base
+    class Division < Base
     protected
       def mappings
         {

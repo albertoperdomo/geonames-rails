@@ -4,7 +4,7 @@ module GeonamesRails
       @temp_geonames_files = []
       target_dir = File.join(RAILS_ROOT, 'tmp')
       
-      file_names = %w(cities1000.zip cities5000.zip cities15000.zip admin1Codes.txt countryInfo.txt)
+      file_names = %w(cities1000.zip cities5000.zip cities15000.zip allCountries.zip countryInfo.txt)
       file_names.each do |file_name|
         url = "http://download.geonames.org/export/dump/#{file_name}"
       
