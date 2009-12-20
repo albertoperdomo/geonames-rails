@@ -54,7 +54,7 @@ module GeonamesRails
           parent = nil
           while parent.nil? && p_code.size > 1
             parent = Division.find_by_code p_code.join('|')
-            p_code = p_code[0..-2]
+            p_code = p_code[0..-2] if parent.nil? # prepare for next iteration
           end
           next if p_code.size < 2 # only country
           puts "updating #{div_ids.size} children of #{parent.nil? ? 'nil' : parent.name} (#{p_code})"

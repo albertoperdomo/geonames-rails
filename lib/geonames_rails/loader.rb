@@ -43,6 +43,9 @@ module GeonamesRails
           parts = line.split("\t")
           next if parts.size != 19 # bad records
           next unless parts[6] == 'A' and parts[7] =~ /^ADM[1234]$/ # only admins
+          # test: only spain
+          # next unless parts[8] == 'ES'
+          # end-test
           divisions << Mappings::Division.new(line)
           #break if divisions.size > 500
         end
