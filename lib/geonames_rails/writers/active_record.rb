@@ -68,6 +68,7 @@ module GeonamesRails
       def write_cities(country_code, city_mappings)    
         country = Country.find_by_iso_code_two_letter(country_code)
         return "Skipped unknown country code #{country_code} with #{city_mappings.length} cities" if country.nil?
+        divisions_by_code = Division.find_all_by_country_id(country.id).group_by {|d| d.code }
         city_mappings.each do |city_mapping|
           city = City.find_or_initialize_by_geonames_id(city_mapping[:geonames_id])
           city.country = country
@@ -78,7 +79,17 @@ module GeonamesRails
             :country_iso_code_two_letters,
             :population,
             :geonames_timezone_id)
-        
+          parent_trace = [
+            city_mapping[:country_iso_code_two_letters],
+            city_mapping[:admin_1_code],
+            city_mapping[:admin_2_code],
+            city_mapping[:admin_3_code],
+            city_mapping[:admin_4_code],
+            city_mapping[:geonames_id]
+          ].collect {|x| x == "" ? nil : x}.compact
+          city.code = parent_trace.join("|")
+          parent_division = divisions_by_code[parent_trace[0..-2].join('|')]
+          city.division = parent_division.first unless parent_division.nil?
           city.save!
         end
         
