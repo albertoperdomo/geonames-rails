@@ -74,6 +74,7 @@ module GeonamesRails
           city.country = country
         
           city.attributes = city_mapping.slice(:name,
+            :alternate_names,
             :latitude,
             :longitude,
             :country_iso_code_two_letters,
