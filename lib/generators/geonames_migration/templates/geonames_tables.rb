@@ -73,6 +73,7 @@ class CreateGeonamesTables < ActiveRecord::Migration
     end
     add_index :divisions, :geonames_id, :unique => true
     add_index :divisions, :parent_id
+    add_index :divisions, :code
 
     # create cities
     create_table :cities do |t|
@@ -102,9 +103,15 @@ class CreateGeonamesTables < ActiveRecord::Migration
       # [17] timezone : the timezone id (see file timeZone.txt)
       t.integer :geonames_timezone_id
       # [18] modification date : date of last modification in yyyy-MM-dd format
+
+      # Extras for linking to containers and divisions
+      t.string  :code
+      t.integer :division_id
     end
     
     add_index :cities, :geonames_id, :unique => true
+    add_index :cities, :division_id
+    add_index :cities, :code
   end
   
   def self.down
