@@ -30,6 +30,9 @@ class CreateGeonamesTables < ActiveRecord::Migration
       t.integer :geonames_id, :null => false
       # [17] Neighbours
       # [18] Equivalent Fips Code
+
+      # Added for text-indexing
+      t.string :alternate_names, :limit => 5000
     end
     
     add_index :countries, :iso_code_two_letter, :unique => true

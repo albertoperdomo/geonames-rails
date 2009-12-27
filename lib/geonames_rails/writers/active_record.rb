@@ -14,7 +14,8 @@ module GeonamesRails
           :name,
           :capital,
           :continent,
-          :geonames_id)
+          :geonames_id,
+          :alternate_names)
         c.save!
         
         "#{created_or_updating} db record for #{iso_code}"

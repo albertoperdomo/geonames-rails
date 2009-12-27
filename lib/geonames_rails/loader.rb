@@ -21,17 +21,33 @@ module GeonamesRails
   protected
     def load_countries
       log_message "opening countries file"
+      mappings = []
       File.open(File.join(RAILS_ROOT, 'tmp', 'countryInfo.txt'), 'r') do |f|
         f.each_line do |line|
           # skip comments
           next if line.match(/^#/) || line.match(/^iso/i)
           
-          country_mapping = Mappings::Country.new(line)
+          mappings << Mappings::Country.new(line)
           
-          result = @writer.write_country(country_mapping)
-          
-          log_message result
+          log_message "Pre-loaded #{mappings.size} countries"
         end
+      end
+      country_ids = mappings.collect {|country_mapping| country_mapping[:geonames_id]}
+      log_message "opening allCountries file... processign will take some time"
+      File.open(File.join(RAILS_ROOT, 'tmp', 'allCountries.txt'), 'r') do |f|
+        f.each_line do |line|
+          parts = line.split("\t")
+          next if parts.size != 19 # bad records
+          if (idx = country_ids.index parts[0])
+            mappings[idx][:alternate_names] = parts[3]
+            log_message "Settings alternate names for #{mappings[idx][:name]} to #{mappings[idx][:alternate_names]}"
+          end
+        end
+      end
+      # Now find alternate names...
+      mappings.each do |country_mapping|
+        result = @writer.write_country(country_mapping)
+        log_message result
       end
     end
 
