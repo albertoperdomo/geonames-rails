@@ -13,6 +13,14 @@ namespace :geonames_rails do
   
   desc 'load the data from files you already have laying about'
   task :load_data => :environment do
+    if ENV['DISABLE_SOLR']
+      puts "Disabling solr indexing"
+      class ActsAsSolr::Post
+        def self.execute(request)
+          true
+        end
+      end
+    end
     writer = ENV['DRY_RUN'] ? GeonamesRails::Writers::DryRun.new : GeonamesRails::Writers::ActiveRecord.new
     GeonamesRails::Loader.new(nil, writer).load_data
   end
