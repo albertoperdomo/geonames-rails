@@ -35,16 +35,16 @@ module GeonamesRails
             :longitude,
             :country_iso_code_two_letters,
             :geonames_timezone_id)
+          division.level = division_mapping[:feature_code].at(3).to_i
           parent_trace = [
             division_mapping[:country_iso_code_two_letters],
-            division_mapping[:admin_1_code],
-            division_mapping[:admin_2_code],
-            division_mapping[:admin_3_code],
-            division_mapping[:admin_4_code]
+            (division_mapping[:admin_1_code] if division.level >= 1),
+            (division_mapping[:admin_2_code] if division.level >= 2),
+            (division_mapping[:admin_3_code] if division.level >= 3),
+            (division_mapping[:admin_4_code] if division.level == 4)
           ].collect {|x| x == "" ? nil : x}.compact
           division.code = parent_trace.join("|")
           parent_codes = parent_trace[0..-2]
-          division.level = parent_codes.size
           division.save!
           if division.level > 1
             divisions_by_parent_code[parent_codes] << division.id
