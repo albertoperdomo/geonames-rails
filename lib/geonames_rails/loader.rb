@@ -71,7 +71,7 @@ module GeonamesRails
     end
     
     def load_cities
-      %w(cities1000 cities5000 cities15000).each do |city_file|
+      %w(cities1000).each do |city_file|
         load_cities_file(city_file)
       end
     end
@@ -80,7 +80,10 @@ module GeonamesRails
       log_message "Loading city file #{city_file}"
       cities = []
       File.open(File.join(RAILS_ROOT, 'tmp', "#{city_file}.txt"), 'r') do |f|
-        f.each_line { |line| cities << Mappings::City.new(line) }
+        f.each_line do |line|
+          mapping = Mappings::City.new(line)
+          cities << mapping unless mapping[:feature_code] == 'PPLX'
+        end
       end
       
       log_message "#{cities.length} cities to process"
