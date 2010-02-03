@@ -71,7 +71,7 @@ module GeonamesRails
     end
     
     def load_cities
-      %w(cities1000).each do |city_file|
+      %w(allCountries).each do |city_file|
         load_cities_file(city_file)
       end
     end
@@ -79,24 +79,38 @@ module GeonamesRails
     def load_cities_file(city_file)
       log_message "Loading city file #{city_file}"
       cities = []
+      count = 0;
       File.open(File.join(RAILS_ROOT, 'tmp', "#{city_file}.txt"), 'r') do |f|
         f.each_line do |line|
+          parts = line.split("\t")
+          next if parts.size != 19 # bad records
+          next unless parts[6] == 'P' && parts[7] != "PPLX" # Not sections
           mapping = Mappings::City.new(line)
           cities << mapping unless mapping[:feature_code] == 'PPLX'
+          if (cities.length == 5000)
+            count += cities.length
+            write_city_chunk(cities)
+            cities = []
+          end
         end
       end
-      
+      write_city_chunk(cities)
+      log_message "Total cities: #{count + cities.length}"
+    end
+
+    def write_city_chunk(cities)
+      start = Time.now
       log_message "#{cities.length} cities to process"
-      
       cities_by_country_code = cities.group_by { |city_mapping| city_mapping[:country_iso_code_two_letters] }
-      
+
       cities_by_country_code.keys.each do |country_code|
         cities = cities_by_country_code[country_code]
-        
+
         result = @writer.write_cities(country_code, cities)
-        
+
         log_message result
       end
+      log_message "#{cities.length} cities processed in #{Time.now - start} seconds"
     end
     
     def log_message(message)

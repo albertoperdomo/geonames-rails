@@ -21,8 +21,10 @@ namespace :geonames_rails do
         end
       end
     end
-    writer = ENV['DRY_RUN'] ? GeonamesRails::Writers::DryRun.new : GeonamesRails::Writers::ActiveRecord.new
-    GeonamesRails::Loader.new(nil, writer).load_data
+    RAILS_DEFAULT_LOGGER.silence do
+      writer = ENV['DRY_RUN'] ? GeonamesRails::Writers::DryRun.new : GeonamesRails::Writers::ActiveRecord.new
+      GeonamesRails::Loader.new(nil, writer).load_data
+    end
   end
   
 end
