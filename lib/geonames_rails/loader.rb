@@ -1,6 +1,8 @@
 module GeonamesRails
   
   class Loader
+
+    CITY_EXCLUDES = %w{PPLX PPLL PPLQ} # city sections, localities or abandoned places
     
     def initialize(puller, writer, logger = nil)
       @logger = logger || STDOUT
@@ -84,9 +86,8 @@ module GeonamesRails
         f.each_line do |line|
           parts = line.split("\t")
           next if parts.size != 19 # bad records
-          next unless parts[6] == 'P' && parts[7] != "PPLX" # Not sections
+          next unless parts[6] == 'P' && !CITY_EXCLUDES.include?(parts[7])
           mapping = Mappings::City.new(line)
-          cities << mapping unless mapping[:feature_code] == 'PPLX'
           if (cities.length == 5000)
             count += cities.length
             write_city_chunk(cities)
