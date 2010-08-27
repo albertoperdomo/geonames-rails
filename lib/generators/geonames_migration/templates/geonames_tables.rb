@@ -87,6 +87,7 @@ class CreateGeonamesTables < ActiveRecord::Migration
       t.string :name, :null => false
       # [2] asciiname : name of geographical point in plain ascii characters, varchar(200)
       # [3] alternatenames : alternatenames, comma separated varchar(4000)
+      t.string :alternate_names, :limit => 5000
       # [4] latitude : latitude in decimal degrees (wgs84)
       t.decimal :latitude, :precision => 14, :scale => 8, :null => false
       # [5] longitude : longitude in decimal degrees (wgs84)
@@ -101,6 +102,7 @@ class CreateGeonamesTables < ActiveRecord::Migration
       # [12] admin3 code : code for third level administrative division, varchar(20)
       # [13] admin4 code : code for fourth level administrative division, varchar(20)
       # [14] population : integer
+      t.integer :population, :limit => 8
       # [15] elevation : in meters, integer
       # [16] gtopo30 : average elevation of 30'x30' (ca 900mx900m) area in meters, integer
       # [17] timezone : the timezone id (see file timeZone.txt)

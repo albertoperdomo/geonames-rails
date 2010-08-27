@@ -87,7 +87,7 @@ module GeonamesRails
           parts = line.split("\t")
           next if parts.size != 19 # bad records
           next unless parts[6] == 'P' && !CITY_EXCLUDES.include?(parts[7])
-          mapping = Mappings::City.new(line)
+          cities << Mappings::City.new(line)
           if (cities.length == 5000)
             count += cities.length
             write_city_chunk(cities)
