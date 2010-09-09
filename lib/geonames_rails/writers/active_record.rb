@@ -74,7 +74,7 @@ module GeonamesRails
         @all_divisions_by_country[country.id] ||= Division.find_all_by_country_id(country.id, :readonly => true).group_by {|d| d.code }
       end
       
-      def write_cities(country_code, city_mappings)    
+      def write_cities(country_code, city_mappings)
         country = all_countries_by_code[country_code].to_a.first
         return "Skipped unknown country code #{country_code} with #{city_mappings.length} cities" if country.nil?
         divisions_by_code = all_divisions_by_country(country)
@@ -106,6 +106,27 @@ module GeonamesRails
         "Processed #{country.name}(#{country_code}) with #{city_mappings.length} cities"
       end
 
+      def write_alternate_names_chunk(alternate_name_mappings)    
+        alternate_name_mappings.each do |alternate_name_mapping|
+          # try to find the record in this order: country, division, city
+          translatable = Country.find_by_geonames_id(alternate_name_mapping[:geonames_id]) || Division.find_by_geonames_id(alternate_name_mapping[:geonames_id]) || City.find_by_geonames_id(alternate_name_mapping[:geonames_id])
+          
+          next unless translatable.present?
+          name = AlternateName.find_or_initialize_by_alternate_name_id(alternate_name_mapping[:alternate_name_id])
+          name.translatable = translatable
+        
+          name.attributes = alternate_name_mapping.slice(:alternate_name_id,
+            :geonames_id,
+            :iso_language,
+            :alternate_name,
+            :preferred_name,
+            :short_name)
+          name.save!
+        end
+        
+        "Processed #{alternate_name_mappings.length} alternate names"
+      end
+      
     end
   end
 end

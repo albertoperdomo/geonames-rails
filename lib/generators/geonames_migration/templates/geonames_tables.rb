@@ -115,12 +115,30 @@ class CreateGeonamesTables < ActiveRecord::Migration
     end
     
     add_index :cities, :geonames_id, :unique => true
+    add_index :cities, :country_id
     add_index :cities, :division_id
+    add_index :cities, :population
     add_index :cities, :code
+    
+    create_table :alternate_names do |t|
+      t.integer   :translatable_id, :null => false
+      t.string    :translatable_type, :null => false
+      t.integer   :alternate_name_id, :null => false
+      t.integer   :geonames_id, :null => false
+      t.string    :iso_language, :limit => 7
+      t.string    :alternate_name, :null => false
+      t.boolean   :preferred_name, :default => false
+      t.boolean   :short_name, :default => false
+    end
+    
+    add_index :alternate_names, :alternate_name_id, :unique => true
+    add_index :alternate_names, [:translatable_id, :translatable_type]
+    add_index :alternate_names, :iso_language
+    add_index :alternate_names, :preferred_name
   end
   
   def self.down
     # drop all the tables
-    %w(countries divisions cities).each { |t| drop_table t }
+    %w(countries divisions cities alternate_names).each { |t| drop_table t }
   end
 end

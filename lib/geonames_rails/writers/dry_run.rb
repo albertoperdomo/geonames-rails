@@ -21,6 +21,10 @@ module GeonamesRails
         
         "Dry run of country #{country_code} would have written out #{city_mappings.length} cities"
       end
+      
+      def write_alternate_names_chunk(alternate_name_mappings)  
+        "Dry run would have written out #{alternate_name_mappings.length} alternate names"
+      end
     end
   end
 end

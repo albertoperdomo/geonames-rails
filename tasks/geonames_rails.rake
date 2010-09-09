@@ -1,18 +1,17 @@
 namespace :geonames_rails do
   desc 'pull down the geonames data from the server'
-  task :pull_data => :environment do
+  task :download => :environment do
     GeonamesRails::Puller.new.pull
   end
   
-  desc 'pull geonames data, load into db, then clean up after itself'
-  task :pull_and_load_data => :environment do
-    puller = GeonamesRails::Puller.new
-    writer = ENV['DRY_RUN'] ? GeonamesRails::Writers::DryRun.new : GeonamesRails::Writers::ActiveRecord.new
-    GeonamesRails::Loader.new(puller, writer).load_data
+  desc 'pull down the geonames data from the server'
+  task :cleanup => :environment do
+    # TODO: Implement
+    puts "TODO: Not implemented yet"
   end
-  
+    
   desc 'load the data from files you already have laying about'
-  task :load_data => :environment do
+  task :load => :environment do
     if ENV['DISABLE_SOLR']
       puts "Disabling solr indexing"
       class ActsAsSolr::Post
@@ -23,8 +22,11 @@ namespace :geonames_rails do
     end
     RAILS_DEFAULT_LOGGER.silence do
       writer = ENV['DRY_RUN'] ? GeonamesRails::Writers::DryRun.new : GeonamesRails::Writers::ActiveRecord.new
-      GeonamesRails::Loader.new(nil, writer).load_data
+      GeonamesRails::Loader.new(writer).load_data
     end
   end
   
+  desc 'Pull down the files, load the database and cleanup the downloaded files'
+  task :all => ['geonames_rails:download', 'geonames_rails:load', 'geonames_rails:cleandup']
+
 end

@@ -1,6 +1,7 @@
 class Division < ActiveRecord::Base
   belongs_to :country
   belongs_to :parent, :class_name => "Division"
+  has_many :geonames_alternate_names, :as => :translatable, :class_name => 'AlternateName'
 
   # Returns an array with all the parents of this administrative region
   #
@@ -18,4 +19,14 @@ class Division < ActiveRecord::Base
     @containers += Division.find_all_by_code container_codes[0..-2], :order => :level if container_codes.size > 1
     return @containers
   end
+  
+  def localized_name
+    translations = geonames_alternate_names.in_language(I18n.locale)
+    return name if translations.empty?
+    translations.each do |t|
+        return t.alternate_name if t.preferred_name?
+    end
+    translations.first.alternate_name
+  end
+  
 end
